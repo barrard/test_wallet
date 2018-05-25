@@ -6,3 +6,19 @@ if (!localStorage.getItem('seed')) {
 
 }
 
+
+
+function call_when_mined(txHash, callback) {
+  web3.eth.getTransactionReceipt(txHash, function (e, r) {
+    if (e) { console.log(e) }
+    else {
+      if (r == null) {
+        setTimeout(function () {
+          call_when_mined(txHash, callback)
+        }, 500)
+      } else {
+        callback(txHash);
+      }
+    }
+  })
+}

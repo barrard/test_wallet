@@ -35,13 +35,16 @@
       })
     }
     function getBalances() {
-
+      // web3.eth.defaultAccount = web3.eth.accounts[0];
       var addresses = global_keystore.getAddresses();
       document.getElementById('addr').innerHTML = 'Retrieving addresses...'
       async.map(addresses, web3.eth.getBalance, function (err, balances) {
         async.map(addresses, web3.eth.getTransactionCount, function (err, nonces) {
           document.getElementById('addr').innerHTML = ''
           for (var i = 0; i < addresses.length; ++i) {
+            if(i == 0 ) {
+              0x3d36e1edd3cbd7a3c357e95174d35a2a3b9cf99f
+            }
             document.getElementById('addr').innerHTML += '<div>' + addresses[i] + ' (Bal: ' + (balances[i] / 1.0e18) + ' ETH, Nonce: ' + nonces[i] + ')' + '</div>'
           }
         })
@@ -115,6 +118,7 @@
       });
     }
     function sendEth() {
+      var send_it = document.getElementById('sendItMessage')
       var fromAddr = document.getElementById('sendFrom').value
       var toAddr = document.getElementById('sendTo').value
       var valueEth = document.getElementById('sendValueAmount').value
@@ -124,6 +128,12 @@
       web3.eth.sendTransaction({ from: fromAddr, to: toAddr, value: value, gasPrice: gasPrice, gas: gas }, function (err, txhash) {
         console.log('error: ' + err)
         console.log('txhash: ' + txhash)
+        send_it.innerText = 'Transaction Recipt, '+txhash
+        call_when_mined(txhash, (_txhash)=>{
+          var msg = `Transaction Complete ${_txhash}`
+          console.log(msg)
+          send_it.innerText = msg
+        })
       })
     }
     function functionCall() {
@@ -173,13 +183,14 @@
     <select id="sendFrom"></select>
   </div>
   <div>To:
-    <input type="text" size="40" id="sendTo"></input>
+    <input type="text" size="40" id="sendTo" value="0x4f1b09c8f8cbbd570f3a65f7c4c15d7212456fea"></input>
   </div>
   <div>Ether:
-    <input type="text" id="sendValueAmount">
+    <input type="text" id="sendValueAmount" value = "0.01">
   </div>
   <div>
     <button onclick="sendEth()">Send Ether</button>
+    <span id="sendItMessage"></span>
   </div>
   <h2>Show Seed</h2>
   <button onclick="showSeed()">Show Seed</button>
